@@ -1,60 +1,68 @@
-import { useEffect, useState } from "react";
-import { Rings } from "react-loader-spinner";
+import { useState } from "react";
+
+const tempMovieData = [
+  {
+    imdbID: "tt1375666",
+    Title: "Inception",
+    Year: "2010",
+    Poster:
+      "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
+  },
+  {
+    imdbID: "tt0133093",
+    Title: "The Matrix",
+    Year: "1999",
+    Poster:
+      "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
+  },
+  {
+    imdbID: "tt6751668",
+    Title: "Parasite",
+    Year: "2019",
+    Poster:
+      "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWE0ZDYtZTI3MjcwN2Q5NTVkXkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_SX300.jpg",
+  },
+];
+
+const tempWatchedData = [
+  {
+    imdbID: "tt1375666",
+    Title: "Inception",
+    Year: "2010",
+    Poster:
+      "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
+    runtime: 148,
+    imdbRating: 8.8,
+    userRating: 10,
+  },
+  {
+    imdbID: "tt0088763",
+    Title: "Back to the Future",
+    Year: "1985",
+    Poster:
+      "https://m.media-amazon.com/images/M/MV5BZmU0M2Y1OGUtZjIxNi00ZjBkLTg1MjgtOWIyNThiZWIwYjRiXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
+    runtime: 116,
+    imdbRating: 8.5,
+    userRating: 9,
+  },
+];
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
-const KEY = "8ca7afce";
-export default function App() {
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState(null);
 
-  useEffect(
-    function () {
-      //function to fetch the data and handle errors
-      async function fetchMovies() {
-        try {
-          setError("");
-          setIsLoading(true);
-          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
-          );
-          if (!res.ok) throw new Error("Something went wrong");
-          const data = await res.json();
-          if (data.Response === "False") throw new Error("Movie not found");
-          setMovies(data.Search);
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-      // only return the data when user has entered 3 chars
-      if (query.length < 3) {
-        setMovies([]);
-        setError("");
-        return;
-      }
-      //call fetch data function
-      fetchMovies();
-    },
-    [query]
-  );
+export default function App() {
+  const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
   return (
     <>
       <NavBar>
-        <SearchBar setQuery={setQuery} query={query} />
+        <SearchBar />
         <NumResults movies={movies} />
       </NavBar>
 
       <Main>
         <Box>
-          {error && <ErrorMessage message={error} />}
-          {isLoading && !error && <Loader />}
-          {!isLoading && !error && <MovieList movies={movies} />}
+          <MovieList movies={movies} />
         </Box>
 
         <Box>
@@ -66,22 +74,6 @@ export default function App() {
   );
 }
 
-function ErrorMessage({ message }) {
-  return <p className="error">{message}</p>;
-}
-function Loader() {
-  return (
-    <Rings
-      visible={true}
-      height="80"
-      width="80"
-      color="purple"
-      ariaLabel="rings-loading"
-      wrapperStyle={{}}
-      wrapperClass=""
-    />
-  );
-}
 function NavBar({ children }) {
   return (
     <nav className="nav-bar">
@@ -91,8 +83,8 @@ function NavBar({ children }) {
     </nav>
   );
 }
-function SearchBar({ query, setQuery }) {
-  // const [query, setQuery] = useState("");
+function SearchBar() {
+  const [query, setQuery] = useState("");
   return (
     <input
       className="search"
@@ -140,7 +132,7 @@ function Box({ children }) {
 
 function Movie({ movie }) {
   return (
-    <li key={movie.imdbID} onClick={() => console.log(movie)}>
+    <li key={movie.imdbID}>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
